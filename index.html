@@ -39,7 +39,9 @@ canvas{display:block;width:100%;height:auto}
 #dlg .txt{font-size:calc(16px*var(--f,1));line-height:1.5}
 #dlg .opts{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 #dlg .o{background:#fff;border:2px solid var(--line);border-radius:10px;padding:6px 10px;font:inherit;font-size:calc(15px*var(--f,1));text-align:left;cursor:pointer}
-#dlg .o:hover{border-color:var(--green)}
+#dlg .o:hover,#dlg .o:focus{border-color:var(--green)}
+#dlg button:focus-visible,#dlg .o:focus,#dlg .chip:focus,#dlg .clue:focus{outline:3px solid #f97316;outline-offset:2px;background:#fff7ed}
+#dlg input[type=checkbox]:focus-visible{outline:3px solid #f97316;outline-offset:2px}
 #dlg .o.ok{background:#dcfce7;border-color:var(--green)}
 #dlg .o.bad{background:#fee2e2;border-color:#ef4444}
 #dlg .chip{padding:2px 10px;font-size:calc(14px*var(--f,1))}
@@ -114,7 +116,7 @@ body.touch.playing .cert,body.touch .c{z-index:60}
 </head>
 <body>
 <header>
-  <h1>⚽ Go!3DP｜同樂 3D 列印工廠 <small>初模 v0.6</small></h1>
+  <h1>⚽ Go!3DP｜同樂 3D 列印工廠 <small>初模 v0.8</small></h1>
   <button id="mapBtn">🗺 回地圖</button>
 </header>
 <main>
@@ -133,7 +135,7 @@ body.touch.playing .cert,body.touch .c{z-index:60}
   </section>
   <section id="playScr" class="hide">
     <div id="wrap"><canvas id="cv" width="960" height="540"></canvas><div id="dlg" class="hide"></div></div>
-    <div class="hint">← → 移動　↑／空白 跳　E 對話　R 履歷　M 靜音</div>
+    <div class="hint">← → 移動　↑／空白 跳　E 對話　R 履歷　M 靜音　答題：↑↓ 選擇、Enter 確認（或按 1–4）</div>
   </section>
 </main>
 <script>
@@ -407,7 +409,7 @@ function startScene(id){
   player={x:60,y:GROUND-44,w:26,h:44,vx:0,vy:0,on:true,face:1,moving:false,ph:0,amp:0,air:0};
   cam=0;mode="play";$("#mapScr").classList.add("hide");$("#playScr").classList.remove("hide");document.body.classList.add("playing");tryLandscape();setForce();
   closeDlg();
-  dlg(`場景 ${sc.id}：${sc.t}`,`往右走，找到每一位 NPC 完成任務，路上撿耗材，最後過「門禁」，走到終點！<br><small>${TOUCH?"左搖桿移動　右側按鍵：跳・跑・對話・加速":"← → 移動　↑／空白 跳　E 互動　B 加速"}</small>`,[{t:"開始！",fn:closeDlg}]);
+  dlg(`場景 ${sc.id}：${sc.t}`,`往右走，找到每一位 NPC 完成任務，路上撿耗材，最後過「門禁」，走到終點！<br><small>${TOUCH?"左搖桿移動　右側按鍵：跳・跑・對話・加速":"← → 移動　↑／空白 跳　E 互動　B 加速　答題：↑↓ 選擇、Enter 確認"}</small>`,[{t:"開始！",fn:closeDlg}]);
 }
 
 /* ===== 對話框 ===== */
@@ -635,7 +637,8 @@ function certificate(){
 /* ===== 聲音與輸入 ===== */
 function beep(f,d){if(muted)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.type="square";g.gain.value=.04;o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d);}catch(e){}}
 addEventListener("keydown",e=>{
-  if(e.target.tagName==="INPUT")return;
+  if(e.target.tagName==="INPUT"&&e.target.type!=="checkbox")return;
+  if(dialogOpen&&!D.classList.contains("hide")&&kbNav(e))return;
   const k=e.key.toLowerCase();
   if(mode==="play"&&["arrowleft","arrowright","arrowup","arrowdown"," "].includes(k))e.preventDefault();
   keys[k]=true;
@@ -649,6 +652,19 @@ addEventListener("keydown",e=>{
 addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false});
 addEventListener("blur",()=>{for(const k in keys)keys[k]=false});
 
+
+
+/* ===== 對話框鍵盤選擇：↑↓←→ 移動、Enter／空白 確認、1–9 直選 ===== */
+function kbItems(){return [...D.querySelectorAll("button,input[type=checkbox]")].filter(x=>!x.disabled&&x.offsetParent!==null);}
+function kbNav(e){
+  const k=e.key,it=kbItems();if(!it.length)return false;
+  const cur=it.indexOf(document.activeElement);let nx=null;
+  if(k==="ArrowDown"||k==="ArrowRight")nx=cur<0?0:(cur+1)%it.length;
+  else if(k==="ArrowUp"||k==="ArrowLeft")nx=cur<0?0:(cur-1+it.length)%it.length;
+  else if((k==="Enter"||k===" ")&&cur>=0){e.preventDefault();it[cur].click();return true;}
+  else if(/^[1-9]$/.test(k)){const os=it.filter(x=>x.classList.contains("o")),t=os[+k-1];if(t){e.preventDefault();t.focus();t.click();return true;}return false;}
+  if(nx===null)return false;
+  e.preventDefault();const el=it[nx];el.focus();try{el.scrollIntoView({block:"nearest"});}catch(x){}return true;}
 
 /* ===== 手機觸控：橫向、虛擬搖桿與按鍵 ===== */
 function tryLandscape(){if(!TOUCH)return;try{const el=document.documentElement;const p=el.requestFullscreen?el.requestFullscreen({navigationUI:"hide"}):null;Promise.resolve(p).then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock("landscape")).catch(()=>{});}catch(e){}}
