@@ -2,7 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <title>Go!3DP｜同樂 3D 列印工廠</title>
 <style>
 :root{--green:#3f8f10;--leaf:#8bc34a;--dark:#6b3410;--cream:#fff4e0;--lime:#e6f4c8;--orange:#f97316;--orange2:#ea580c;--line:#ead9bd}
@@ -76,6 +77,39 @@ canvas{display:block;width:100%;height:auto}
 .chip.bad{background:#fee2e2;border-color:#ef4444}
 .rec{width:100%;border-collapse:collapse;font-size:15px}.rec td{border-bottom:1px solid var(--line);padding:3px 6px}.rec td:first-child{color:#6b7280;white-space:nowrap;width:110px}
 .hint{color:#6b3410;font-size:14px;padding:8px 4px 0;text-align:center}
+/* 手機觸控 */
+.touchonly{display:none}body.touch .touchonly{display:flex}body.touch .keys:not(.touchonly){display:none}
+#tc{display:none;position:absolute;inset:0;pointer-events:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;--js:clamp(110px,calc(var(--vh,100vh)*.36),190px);--ab:clamp(50px,calc(var(--vh,100vh)*.16),82px)}
+body.touch #playScr:not(.hide) #tc{display:block}
+#tc *{touch-action:none;-webkit-tap-highlight-color:transparent}
+#joy{position:absolute;left:3%;bottom:6%;width:var(--js);height:var(--js);border-radius:50%;background:rgba(255,255,255,.14);border:3px solid rgba(255,255,255,.3);pointer-events:auto}
+#joy .ar{position:absolute;font-style:normal;color:rgba(255,255,255,.5);font-size:calc(var(--js)*.17);line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+#joy .u{left:50%;top:7%;transform:translateX(-50%)}#joy .d{left:50%;bottom:7%;transform:translateX(-50%)}
+#joy .l{left:7%;top:50%;transform:translateY(-50%)}#joy .r{right:7%;top:50%;transform:translateY(-50%)}
+#knob{position:absolute;left:50%;top:50%;width:calc(var(--js)*.42);height:calc(var(--js)*.42);margin:calc(var(--js)*-.21) 0 0 calc(var(--js)*-.21);border-radius:50%;background:rgba(255,255,255,.3);border:3px solid rgba(255,255,255,.55);box-shadow:0 2px 6px rgba(0,0,0,.25)}
+#acts{position:absolute;right:3%;bottom:5%;width:calc(var(--ab)*2.55);height:calc(var(--ab)*2.55)}
+.ab{position:absolute;width:var(--ab);height:var(--ab);border-radius:50%;border:3px solid rgba(255,255,255,.7);color:#fff;font:700 calc(var(--ab)*.28)/1 inherit;font-family:inherit;pointer-events:auto;opacity:.78;box-shadow:0 3px 0 rgba(0,0,0,.3);padding:0;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.ab.down{opacity:1;transform:scale(.93);box-shadow:none}
+.a-jump{left:calc(var(--ab)*.78);top:calc(var(--ab)*1.55);background:#3f8f10}
+.a-talk{left:calc(var(--ab)*1.55);top:calc(var(--ab)*.78);background:#f97316}
+.a-run{left:0;top:calc(var(--ab)*.78);background:#2563eb}
+.a-boost{left:calc(var(--ab)*.78);top:0;background:#7c3aed}
+.a-boost.on{background:#facc15;color:#6b3410;box-shadow:0 0 0 4px rgba(250,204,21,.5);opacity:1}
+#topbtns{position:absolute;left:50%;transform:translateX(-50%);top:2%;display:flex;gap:8px;pointer-events:auto}
+#topbtns button,#bClose{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(0,0,0,.35);color:#fff;font-size:18px;padding:0}
+#bClose{position:absolute;right:2%;top:14%;display:none;pointer-events:auto;z-index:20}
+body.dlgopen #joy,body.dlgopen #acts,body.dlgopen #topbtns{visibility:hidden;pointer-events:none}
+body.dlgopen #bClose{display:block}
+body.touch #dlg .o{min-height:38px}
+body.touch.playing{overflow:hidden;overscroll-behavior:none}
+body.touch.playing header,body.touch.playing #mapScr{display:none}
+body.touch.playing main{max-width:none;padding:0;margin:0}
+body.touch.playing #playScr{position:fixed;left:0;top:0;width:100vw;height:100vh;height:100dvh;background:#000;z-index:50;display:flex;align-items:center;justify-content:center;--vw:100vw;--vh:100dvh}
+body.touch.playing.rot #playScr{width:100dvh;height:100vw;transform-origin:0 0;transform:translateX(100vw) rotate(90deg);--vw:100dvh;--vh:100vw}
+body.touch.playing #wrap{width:min(var(--vw),calc(var(--vh)*16/9));border:0;border-radius:0;flex:none}
+body.touch.playing .hint{display:none}
+body.touch.playing .cert,body.touch .c{z-index:60}
+
 </style>
 </head>
 <body>
@@ -88,6 +122,7 @@ canvas{display:block;width:100%;height:auto}
     <div class="hero"><img id="logo" alt="Go!3DP"><div>
       <h2>足球小將製造所</h2>
       <p class="sub">帶著你的同樂小將，從操場出發一路往右走，闖過 6 個工廠場景，親手做出屬於自己的足球公仔！</p>
+      <div class="keys touchonly"><span>📱 左下搖桿：移動（往上＝跳）</span><span>右下按鍵：跳・跑・對話・加速（點一下開／關）</span><span>遊玩時會自動切成橫向畫面</span></div>
       <div class="keys"><span><kbd>←</kbd><kbd>→</kbd>移動</span><span><kbd>↑</kbd>／<kbd>空白</kbd>跳躍</span><span><kbd>E</kbd>對話・互動</span><span><kbd>R</kbd>我的履歷</span></div>
     </div></div>
     <span class="step">① 先填好組別、隊名、座號</span>
@@ -340,11 +375,14 @@ function rigSprite(k,cx,feet,flip,p){
 /* ===== 狀態 ===== */
 let mode="map",sc=null,run=null,player=null,dialogOpen=false,cam=0,t=0,muted=false,AC=null,prompt=null;
 const keys={},press={interact:false,jump:0};
+const TOUCH=/[?&]touch=1/.test(location.search)||(window.matchMedia&&matchMedia("(pointer:coarse)").matches)||(navigator.maxTouchPoints>0&&"ontouchstart" in window);
+let boost=false,runHeld=false;
+const KE=TOUCH?"點「對話」：":"按 E：";
 const unlocked=i=>TEACHER||i===0||S.done[SCENES[i-1].id];
 
 /* ===== 地圖 ===== */
 function showMap(){
-  mode="map";$("#mapScr").classList.remove("hide");$("#playScr").classList.add("hide");
+  mode="map";$("#mapScr").classList.remove("hide");$("#playScr").classList.add("hide");document.body.classList.remove("playing");if(typeof setForce==="function")setForce();
   $("#grp").innerHTML=Array.from({length:10},(_,i)=>`<option ${S.group==i+1?"selected":""}>${i+1}</option>`).join("");
   $("#gname").value=S.gname||"";$("#sno").value=S.no||"";
   const p=$("#path");p.innerHTML="";
@@ -367,9 +405,9 @@ function startScene(id){
   sc=SCENES.find(x=>x.id===id);
   run={st:{},wrong:0,picked:0,got:new Set(),gateTries:0,gateFirst:false,gateOpen:false,done:false};
   player={x:60,y:GROUND-44,w:26,h:44,vx:0,vy:0,on:true,face:1,moving:false,ph:0,amp:0,air:0};
-  cam=0;mode="play";$("#mapScr").classList.add("hide");$("#playScr").classList.remove("hide");
+  cam=0;mode="play";$("#mapScr").classList.add("hide");$("#playScr").classList.remove("hide");document.body.classList.add("playing");tryLandscape();setForce();
   closeDlg();
-  dlg(`場景 ${sc.id}：${sc.t}`,`往右走，找到每一位 NPC 完成任務，路上撿耗材，最後過「門禁」，走到終點！<br><small>← → 移動　↑／空白 跳　E 互動</small>`,[{t:"開始！",fn:closeDlg}]);
+  dlg(`場景 ${sc.id}：${sc.t}`,`往右走，找到每一位 NPC 完成任務，路上撿耗材，最後過「門禁」，走到終點！<br><small>${TOUCH?"左搖桿移動　右側按鍵：跳・跑・對話・加速":"← → 移動　↑／空白 跳　E 互動　B 加速"}</small>`,[{t:"開始！",fn:closeDlg}]);
 }
 
 /* ===== 對話框 ===== */
@@ -399,7 +437,7 @@ function placeBubble(wide){
     D.style.setProperty("--tx",Math.max(10,Math.min(90,(sx/960*100-left)/wp*100))+"%");
     D.style.setProperty("--f",f.toFixed(2));inn.style.maxHeight=maxH+"px";};
   const over=()=>inn.scrollHeight>inn.clientHeight+1;
-  const f0=Math.max(.8,Math.min(1.25,base));
+  const f0=Math.max(TOUCH?.95:.8,Math.min(1.25,base));
   let wp=wide?70:46;set(wp,f0);if(!over())return;
   for(const w of [60,70]){if(w<=wp)continue;wp=w;set(wp,f0);if(!over())return;}
   for(let f=f0-.05;f>=.8;f-=.05){set(wp,f);if(!over())return;}
@@ -602,6 +640,7 @@ addEventListener("keydown",e=>{
   if(mode==="play"&&["arrowleft","arrowright","arrowup","arrowdown"," "].includes(k))e.preventDefault();
   keys[k]=true;
   if(k==="m")muted=!muted;
+  if(k==="b")setBoost(!boost);
   if(k==="r"&&mode==="play"&&!dialogOpen)showRec();
   if(["arrowup","w"," "].includes(k))press.jump=.14;
   if(mode==="play"&&!dialogOpen&&(k==="e"||k==="enter"))press.interact=true;
@@ -610,17 +649,61 @@ addEventListener("keydown",e=>{
 addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false});
 addEventListener("blur",()=>{for(const k in keys)keys[k]=false});
 
+
+/* ===== 手機觸控：橫向、虛擬搖桿與按鍵 ===== */
+function tryLandscape(){if(!TOUCH)return;try{const el=document.documentElement;const p=el.requestFullscreen?el.requestFullscreen({navigationUI:"hide"}):null;Promise.resolve(p).then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock("landscape")).catch(()=>{});}catch(e){}}
+function setForce(){const rot=TOUCH&&mode==="play"&&window.matchMedia("(orientation:portrait)").matches;document.body.classList.toggle("rot",rot);}
+addEventListener("resize",setForce);addEventListener("orientationchange",setForce);
+function setBoost(v){boost=v;const e=document.getElementById("bBoost");if(e)e.classList.toggle("on",v);}
+function setupTouch(){
+  if(!TOUCH)return;document.body.classList.add("touch");
+  const tc=document.createElement("div");tc.id="tc";
+  tc.innerHTML='<div id="joy"><i class="ar u">▲</i><i class="ar l">◀</i><i class="ar r">▶</i><i class="ar d">▼</i><div id="knob"></div></div>'+
+   '<div id="acts"><button class="ab a-boost tg" id="bBoost">加速</button><button class="ab a-run" id="bRun">跑</button><button class="ab a-talk" id="bTalk">對話</button><button class="ab a-jump" id="bJump">跳</button></div>'+
+   '<div id="topbtns"><button id="bRec">📋</button><button id="bMute">🔊</button><button id="bMap">🗺</button></div><button id="bClose">✕</button>';
+  $("#wrap").append(tc);
+  tc.oncontextmenu=e=>e.preventDefault();
+  const joy=$("#joy"),knob=$("#knob");let jid=null;
+  const setJoy=(lx,ly,R)=>{
+    const m=Math.hypot(lx,ly),k=m>R?R/m:1,x=lx*k,y=ly*k;
+    knob.style.transform=`translate(${x}px,${y}px)`;
+    keys.arrowleft=x<-R*.3;keys.arrowright=x>R*.3;
+    const up=y<-R*.55;if(up&&!keys.arrowup)press.jump=.14;keys.arrowup=up;};
+  const joyEv=e=>{const r=joy.getBoundingClientRect(),R=r.width/2;
+    let dx=e.clientX-(r.left+R),dy=e.clientY-(r.top+R);
+    if(document.body.classList.contains("rot")){const t=dx;dx=dy;dy=-t;}
+    setJoy(dx,dy,R);};
+  const joyEnd=e=>{if(e.pointerId!==jid)return;jid=null;knob.style.transform="";keys.arrowleft=keys.arrowright=keys.arrowup=false;};
+  joy.addEventListener("pointerdown",e=>{e.preventDefault();jid=e.pointerId;try{joy.setPointerCapture(jid);}catch(x){}joyEv(e);});
+  joy.addEventListener("pointermove",e=>{if(e.pointerId===jid)joyEv(e);});
+  joy.addEventListener("pointerup",joyEnd);joy.addEventListener("pointercancel",joyEnd);
+  const hold=(id,on,off)=>{const el=$("#"+id);
+    el.addEventListener("pointerdown",e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId);}catch(x){}el.classList.add("down");on();});
+    const up=()=>{el.classList.remove("down");off&&off();};
+    el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);};
+  hold("bJump",()=>{keys[" "]=true;press.jump=.14;},()=>{keys[" "]=false;});
+  hold("bRun",()=>{runHeld=true;},()=>{runHeld=false;});
+  hold("bTalk",()=>{if(mode==="play"&&!dialogOpen)press.interact=true;});
+  hold("bBoost",()=>{setBoost(!boost);});
+  hold("bRec",()=>{if(mode==="play"&&!dialogOpen)showRec();});
+  hold("bMute",()=>{muted=!muted;$("#bMute").textContent=muted?"🔇":"🔊";});
+  hold("bMap",()=>{closeDlg();showMap();});
+  hold("bClose",()=>{if(dialogOpen&&mode==="play"&&!run.done)closeDlg();});
+}
+setupTouch();
+
 /* ===== 更新 ===== */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function update(dt){
   t+=dt;
+  document.body.classList.toggle("dlgopen",!!dialogOpen);
   if(player){const mv=mode==="play"&&!dialogOpen&&player.moving&&player.on;
     player.amp+=((mv?1:0)-player.amp)*Math.min(1,dt*14);if(mv)player.ph+=dt*11;
     player.air+=((player.on?0:1)-player.air)*Math.min(1,dt*14);}
   if(mode!=="play"||dialogOpen)return;
   const p=player;let ax=0;
   if(keys.arrowleft||keys.a)ax--;if(keys.arrowright||keys.d)ax++;
-  p.vx=ax*SPEED;p.moving=!!ax;if(ax)p.face=ax;
+  p.vx=ax*SPEED*((boost||keys.shift)?1.4:1)*(runHeld?1.4:1);p.moving=!!ax;if(ax)p.face=ax;
   press.jump-=dt;
   if((keys.arrowup||keys.w||keys[" "]||press.jump>0)&&p.on){p.vy=-JUMP;p.on=false;press.jump=0;beep(520,.07);}
   p.vy+=G*dt;
@@ -637,8 +720,8 @@ function update(dt){
   sc.spools.forEach((s,i)=>{if(run.got.has(i))return;
     if(Math.abs(p.x+p.w/2-s[0])<22&&Math.abs(p.y+p.h/2-s[1])<32){run.got.add(i);run.picked++;beep(990,.06);}});
   const cx=p.x+p.w/2;prompt=null;
-  for(const n of sc.stations)if(Math.abs(cx-n.x)<80)prompt={x:n.x,label:"按 E："+n.name,act:()=>runStation(n)};
-  if(!run.gateOpen&&Math.abs(cx-(sc.gate.x-20))<90)prompt={x:sc.gate.x-20,label:"按 E：門禁題",gate:true,act:openGate};
+  for(const n of sc.stations)if(Math.abs(cx-n.x)<80)prompt={x:n.x,label:KE+n.name,act:()=>runStation(n)};
+  if(!run.gateOpen&&Math.abs(cx-(sc.gate.x-20))<90)prompt={x:sc.gate.x-20,label:KE+"門禁題",gate:true,act:openGate};
   if(press.interact){press.interact=false;if(prompt)prompt.act();}
   if(run.gateOpen&&!run.done&&cx>=sc.goal)finishScene();
 }
