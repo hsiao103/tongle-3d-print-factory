@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>Go!3DP｜同樂 3D 列印工廠</title>
+<title>TLPS 3DP Factory｜同樂 3D 列印工廠</title>
 <style>
 :root{--green:#3f8f10;--leaf:#8bc34a;--dark:#6b3410;--cream:#fff4e0;--lime:#e6f4c8;--orange:#f97316;--orange2:#ea580c;--line:#ead9bd}
 *{box-sizing:border-box}
@@ -116,7 +116,7 @@ body.touch.playing .cert,body.touch .c{z-index:60}
 </head>
 <body>
 <header>
-  <h1>⚽ Go!3DP｜同樂 3D 列印工廠 <small>初模 v0.8</small></h1>
+  <h1>⚽ TLPS 3DP Factory｜同樂 3D 列印工廠 <small>初模 v0.9</small></h1>
   <button id="mapBtn">🗺 回地圖</button>
 </header>
 <main>
@@ -629,7 +629,7 @@ function certificate(){
   closeDlg();
   const r=ROLES.find(x=>x.id===S.role),tot=Object.values(S.stars).reduce((a,b)=>a+b,0);
   const c=document.createElement("div");c.id="cert";
-  c.innerHTML=`<div class="c"><h2>🏅 工廠實習生證書</h2><p style="font-size:20px;line-height:1.8">第 ${S.group} 組 ${S.gname||""}<br>完成「同樂 3D 列印工廠」六個場景<br>角色：${r?r.name+"（"+r.act+"）":"—"}<br>機台：${S.rec.machine||"—"}　預估：${S.rec.estMin||"—"} 分鐘／${S.rec.estG||"—"} g<br>總星數：⭐ ${tot} / 18<br>${new Date().toLocaleDateString("zh-TW")}</p><p class="noprint"><button class="btn" id="cp">🖨 列印</button> <button class="btn ghost" id="cr">📋 我的履歷</button> <button class="btn ghost" id="cc2">關閉</button></p></div>`;
+  c.innerHTML=`<div class="c"><h2>🏅 工廠實習生證書</h2><p style="font-size:20px;line-height:1.8">第 ${S.group} 組 ${S.gname||""}<br>完成「TLPS 3DP Factory｜同樂 3D 列印工廠」六個場景<br>角色：${r?r.name+"（"+r.act+"）":"—"}<br>機台：${S.rec.machine||"—"}　預估：${S.rec.estMin||"—"} 分鐘／${S.rec.estG||"—"} g<br>總星數：⭐ ${tot} / 18<br>${new Date().toLocaleDateString("zh-TW")}</p><p class="noprint"><button class="btn" id="cp">🖨 列印</button> <button class="btn ghost" id="cr">📋 我的履歷</button> <button class="btn ghost" id="cc2">關閉</button></p></div>`;
   document.body.append(c);
   c.querySelector("#cp").onclick=()=>window.print();c.querySelector("#cr").onclick=()=>{c.style.display="none";showRec(()=>{c.style.display="";});};c.querySelector("#cc2").onclick=()=>{c.remove();showMap();};
 }
